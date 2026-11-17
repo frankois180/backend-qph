@@ -1,8 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.InvoiceCreatedEvent;
 import com.example.demo.dto.ProductDTO;
-import com.example.demo.messaging.InvoiceEventPublisher;
 import com.example.demo.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/products")
@@ -22,7 +19,6 @@ import java.util.UUID;
 public class ProductController {
 
     private final ProductService productService;
-    private final InvoiceEventPublisher eventPublisher;
 
     @GetMapping
     @Operation(summary = "Listar productos")
@@ -40,13 +36,6 @@ public class ProductController {
     @Operation(summary = "Crear producto")
     public ResponseEntity<ProductDTO> create(@Valid @RequestBody ProductDTO dto) {
         ProductDTO created = productService.create(dto);
-        eventPublisher.publishInvoiceCreated(new InvoiceCreatedEvent(
-            UUID.randomUUID().toString(),
-            created.getId(),
-            created.getNombre(),
-            1,
-            created.getPrecio()
-        ));
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
